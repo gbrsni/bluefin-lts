@@ -11,7 +11,12 @@ dnf config-manager --set-disabled baseos-compose,appstream-compose
 
 dnf clean all
 
-rm -rf /.gitkeep
+rm -rf /.gitkeep \
+  /var/tmp/* \
+  /var/lib/{dnf,rhsm} \
+  /var/cache/* \
+  /boot/*
+
 find /var -mindepth 1 -delete
 find /boot -mindepth 1 -delete
 mkdir -p /var /boot
