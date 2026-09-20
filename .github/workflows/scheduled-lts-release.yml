@@ -30,10 +30,10 @@ jobs:
           echo "DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
 
           gh workflow run build-regular.yml --ref lts -R ${{ github.repository }}
-          gh workflow run build-dx.yml --ref lts -R ${{ github.repository }}
-          gh workflow run build-gdx.yml --ref lts -R ${{ github.repository }}
-          gh workflow run build-regular-hwe.yml --ref lts -R ${{ github.repository }}
-          gh workflow run build-dx-hwe.yml --ref lts -R ${{ github.repository }}
+          # gh workflow run build-dx.yml --ref lts -R ${{ github.repository }}
+          # gh workflow run build-gdx.yml --ref lts -R ${{ github.repository }}
+          # gh workflow run build-regular-hwe.yml --ref lts -R ${{ github.repository }}
+          # gh workflow run build-dx-hwe.yml --ref lts -R ${{ github.repository }}
 
           echo "✅ Triggered all 5 LTS build workflows on lts branch"
 
@@ -75,40 +75,40 @@ jobs:
           gh run watch "$RUN_ID" --exit-status --repo ${{ github.repository }}
           echo "✅ Regular LTS build completed successfully"
 
-      - name: Wait for DX LTS build to complete
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
+      # - name: Wait for DX LTS build to complete
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
+      #   run: |
+      #     set -euo pipefail
 
-          # generate-release.yml inspects bluefin-dx:lts.YYYYMMDD in addition to bluefin:lts.YYYYMMDD.
-          # build-dx.yml runs in parallel with build-regular.yml and can finish slightly later.
-          # We must wait for it to complete before triggering release generation, otherwise
-          # generate-release.yml will fail with "manifest unknown" on the bluefin-dx tag.
-          RUN_ID=""
-          for i in $(seq 1 20); do
-            RUN_ID=$(gh run list \
-              --workflow build-dx.yml \
-              --branch lts \
-              --event workflow_dispatch \
-              --repo ${{ github.repository }} \
-              --limit 10 \
-              --json databaseId,createdAt \
-              --jq ".[] | select(.createdAt >= \"$DISPATCH_TIME\") | .databaseId" \
-              | head -1)
-            [ -n "$RUN_ID" ] && break
-            echo "Waiting for build-dx.yml run to appear in API (attempt $i/20)..."
-            sleep 30
-          done
+      #     # generate-release.yml inspects bluefin-dx:lts.YYYYMMDD in addition to bluefin:lts.YYYYMMDD.
+      #     # build-dx.yml runs in parallel with build-regular.yml and can finish slightly later.
+      #     # We must wait for it to complete before triggering release generation, otherwise
+      #     # generate-release.yml will fail with "manifest unknown" on the bluefin-dx tag.
+      #     RUN_ID=""
+      #     for i in $(seq 1 20); do
+      #       RUN_ID=$(gh run list \
+      #         --workflow build-dx.yml \
+      #         --branch lts \
+      #         --event workflow_dispatch \
+      #         --repo ${{ github.repository }} \
+      #         --limit 10 \
+      #         --json databaseId,createdAt \
+      #         --jq ".[] | select(.createdAt >= \"$DISPATCH_TIME\") | .databaseId" \
+      #         | head -1)
+      #       [ -n "$RUN_ID" ] && break
+      #       echo "Waiting for build-dx.yml run to appear in API (attempt $i/20)..."
+      #       sleep 30
+      #     done
 
-          if [ -z "$RUN_ID" ]; then
-            echo "ERROR: Could not locate build-dx.yml run dispatched at $DISPATCH_TIME"
-            exit 1
-          fi
+      #     if [ -z "$RUN_ID" ]; then
+      #       echo "ERROR: Could not locate build-dx.yml run dispatched at $DISPATCH_TIME"
+      #       exit 1
+      #     fi
 
-          echo "Watching build-dx.yml run $RUN_ID..."
-          gh run watch "$RUN_ID" --exit-status --repo ${{ github.repository }}
-          echo "✅ DX LTS build completed successfully"
+      #     echo "Watching build-dx.yml run $RUN_ID..."
+      #     gh run watch "$RUN_ID" --exit-status --repo ${{ github.repository }}
+      #     echo "✅ DX LTS build completed successfully"
 
 
   generate-release:

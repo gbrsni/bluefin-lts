@@ -4,12 +4,12 @@ permissions:
   contents: write
 
 on:
-  workflow_run:
-    workflows: ["Build Bluefin LTS GDX"]
-    types:
-      - completed
-    branches:
-      - lts
+  # workflow_run:
+  #   workflows: ["Build Bluefin LTS GDX"]
+  #   types:
+  #     - completed
+  #   branches:
+  #     - lts
   workflow_dispatch:
     inputs:
       target:
