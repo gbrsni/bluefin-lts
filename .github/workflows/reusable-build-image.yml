@@ -369,7 +369,6 @@ jobs:
             jq \
             git
 
-          dnf copr enable -y rhcontainerbot/podman-next
           dnf install -y podman
       - name: Exit on failure
         env:
