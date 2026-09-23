@@ -1,0 +1,52 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  "forkProcessing": "enabled",
+
+  "platformAutomerge": true,
+
+  "baseBranchPatterns": ["main"],
+
+  "extends": [
+    "config:best-practices"
+  ],
+
+  "git-submodules": {
+    "enabled": true
+  },
+
+  "rebaseWhen": "never",
+
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^Justfile$/"
+      ],
+      "matchStrings": [
+        "(?<justName>.+?)\\s:=\\s\"(?<packageName>\\S+):(?<currentValue>\\S+)@(?<currentDigest>sha256:[a-f0-9]+?)\""
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ],
+
+  "packageRules": [
+    {
+      "description": "testsuite tracks main by digest with no tags; updates are merged weekly to prevent commit-level spam",
+      "matchDepNames": ["projectbluefin/testsuite"],
+      "schedule": ["before 9am on Monday"],
+      "automerge": true
+    },
+    {
+      "description": "Auto-merge all digest/pin updates across all managers (dockerfile, github-actions, regex/Justfile)",
+      "automerge": true,
+      "matchUpdateTypes": ["digest", "pin", "pinDigest"]
+    },
+    {
+      "description": "Auto-merge minor/patch version bumps for GitHub Actions (e.g. cosign-installer v3.8 -> v3.9)",
+      "automerge": true,
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"]
+    }
+  ]
+}
